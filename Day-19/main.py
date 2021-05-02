@@ -78,6 +78,7 @@ while is_race_on:
                 print(f"You've won! The {turtle.pencolor()} turtle has won.")
             else:
                 print(f"You've lost! The {turtle.pencolor()} turtle has won.")
+        turtle.penup()        
         turtle.forward(random.randint(0, 6))
 
 
