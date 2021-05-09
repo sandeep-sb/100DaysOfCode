@@ -19,7 +19,15 @@ while len(guessed_states) < 50:
     answer_state = screen.textinput(title=f"{len(guessed_states)}/50 States Correct", prompt="What's another state "
                                                                                              "name?").title()
     if answer_state == "Exit":
-        break
+        # Create missing_state.csv
+        missed_state = [state for state in all_states if state not in guessed_states]
+        # missing_state = []
+        # for state in all_states:
+        #     if state not in guessed_states:
+        #         missed_state.append(state)
+        missing_state = pandas.DataFrame(missed_state)
+        missing_state.to_csv("missing_state.csv")
+
     if answer_state in all_states:
         guessed_states.append(answer_state)
         state_data = data[data.state == answer_state]
@@ -29,10 +37,4 @@ while len(guessed_states) < 50:
         text.goto(x=x_cor, y=y_cor)
         text.write(f"{answer_state}")
 
-# Create missing_state.csv
-missed_state = []
-for state in all_states:
-    if state not in guessed_states:
-        missed_state.append(state)
-missing_state = pandas.DataFrame(missed_state)
-missing_state.to_csv("missing_state.csv")
+
