@@ -1,57 +1,53 @@
 import requests
-from datetime import datetime
-from requests.auth import HTTPBasicAuth
 import os
+from datetime import datetime
+
+APP_ID = os.environ.get('APP_ID')
+API_KEY = os.environ.get('API_KEY')
 
 GENDER = 'male'
-WEIGHT_KG = 78
+WEIGHT_KG = 79
 HEIGHT_CM = 180
 AGE = 22
 
-USERNAME = os.environ.get('USERNAME_')
-PASSWORD = os.environ.get('PASSWORD')
+nutrix_post_endpooint = 'https://trackapi.nutritionix.com/v2/natural/exercise'
 
-API_ID = os.environ.get('API_ID')
-API_KEY = os.environ.get('API_KEY')
+nutrix_header = {
+    'x-app-id': APP_ID,
+    'x-app-key': API_KEY,
+}
 
-nutrition_endpoint = 'https://trackapi.nutritionix.com/v2/natural/exercise'
-
-nutrition_params = {
-    'query': (input('Tell me which exercises you did: ')).title(),
+nutrix_param = {
+    'query': input('what exercise you did? ').title(),
     'gender': GENDER,
     'weight_kg': WEIGHT_KG,
     'height_cm': HEIGHT_CM,
     'age': AGE,
 }
 
-nutrition_header = {
-    'x-app-id': API_ID,
-    'x-app-key': API_KEY,
-}
-
-response = requests.post(url=nutrition_endpoint, json=nutrition_params, headers=nutrition_header)
-result = response.json()
-print(result)
-
+print(APP_ID, API_KEY)
+response = requests.post(url=nutrix_post_endpooint, json=nutrix_param, headers=nutrix_header)
+data_list = response.json()
 sheety_endpoint = os.environ.get('SHEETY_ENDPOINT')
 
-today = datetime.now()
-modified_date = today.strftime('%d/%m/%Y')
-time = today.strftime('%H: %M: %S')
-print(time, modified_date)
+date = datetime.now().strftime('%d/%m/%Y')
+time = datetime.now().strftime('%X')
 
-sheety_param = None
-for exercise in result['exercises']:
-    sheety_param = {
+for nutrix_list in data_list['exercises']:
+    sheety_data = {
         'workout': {
-            'Date': modified_date,
-            'Time': time,
-            'Exercise': exercise['user_input'],
-            'Duration': exercise['duration_min'],
-            'Calories': exercise['nf_calories'],
+            'date': date,
+            'time': time,
+            'exercise': nutrix_list['name'].title(),
+            'duration': nutrix_list['duration_min'],
+            'calories': nutrix_list['nf_calories'],
         }
     }
 
-sheet_response = requests.post(url=sheety_endpoint, json=sheety_param,
-                               auth=HTTPBasicAuth(username=USERNAME, password=PASSWORD))
-print(sheet_response.text)
+    sheety_header = {
+        'Authorization': os.environ.get('AUTHORIZATION'),
+        "Content-Type": "application/json",
+    }
+
+    sheety_response = requests.post(url=sheety_endpoint, json=sheety_data, headers=sheety_header)
+    print(sheety_response.text)
