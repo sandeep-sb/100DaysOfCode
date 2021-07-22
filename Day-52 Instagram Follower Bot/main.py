@@ -1,6 +1,6 @@
-from datetime import time
-
+import time
 from selenium import webdriver
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.keys import Keys
 
 tryTime = 2
@@ -36,21 +36,22 @@ class InstaFollower:
         followers_list.click()
         self.driver.implicitly_wait(5)
 
+        modal = self.driver.find_element_by_xpath("//div[@class='isgrP']")
+        print(modal.text)
+        for i in range(5):  # scroll 5 times
+            self.driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight;', modal)
+            time.sleep(2)
+
     def follow(self):
-        f_body = self.driver.find_element_by_xpath("//div[@class='isgrP']")
-        scroll = 0
-        while scroll < 5:  # scroll 5 times
-            self.driver.execute_script('arguments[0].scrollTop = arguments[0].scrollTop + arguments[0].offsetHeight;',
-                                       f_body)
-            self.driver.implicitly_wait()
-            scroll += 1
+        for i in range(1, 50):
+            follow_buttons = self.driver.find_element_by_xpath(f'/html/body/div[5]/div/div/div[2]/ul/div/li[{i}]/div/div[2]/button')
+            try:
+                follow_buttons.click()
+                time.sleep(2)
 
-        f_list = self.driver.find_elements_by_xpath("//div[@class='isgrP']//li")
-        print("fList len is {}".format(len(f_list)))
-
-        print("ended")
-        # self.driver.execute_script("window.scrollBy(0,2000)", "")
-        # follow_button = self.driver.find_element_by_name("Follow")
+            except ElementClickInterceptedException:
+                cancel_button = self.driver.find_element_by_xpath('/html/body/div[6]/div/div/div/div[3]/button[2]')
+                cancel_button.click()
 
 
 bot = InstaFollower(CHROME_WEBDRIVER_PATH)
