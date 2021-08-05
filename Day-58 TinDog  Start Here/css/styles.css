@@ -1,33 +1,36 @@
 body {
     font-family: 'Montserrat';
+    text-align: center;
 }
 
-#title {
-    background-color: #ff4c68;
-    color: #fff;
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Montserrat-Bold', sans-serif;  
 }
 
-.container-fluid {
-    padding: 3% 15%;
-}
-
-h1 {
-    font-family: 'Montserrat-Black', sans-serif;
+/* Headings */
+.big-heading{
     font-size: 3.5rem;
     line-height: 1.5;
     font-weight: 900;
 }
 
-h2{
-    font-family: 'Montserrat-Black', sans-serif;
-    font-size: 3rem;
+.section-heading{
+    font-size: 3.5rem;
     line-height: 1.5;
 }
 
-h3{
-    font-family: "Montserrat-Bold";
-    font-size: 1.5rem;
-    font-weight: bold;
+.container-fluid {
+    padding: 7% 15%;
+}
+
+/* Sections */
+.colored-section{
+    background-color: #ff4c68;
+    color: #fff;
+}
+
+.white-section{
+    background-color: #fff;
 }
 
 /* Navigation bar */
@@ -57,16 +60,29 @@ h3{
 /* Title Image */
 .title-image{
     transform: rotate(25deg);
-    width: 60%
+    width: 60%;
+    position: absolute;
+    right: 30%;
+}
+
+/* Title Section */
+
+#title .container-fluid{
+    padding: 3% 15% 7%;
+    text-align: left;
 }
 
 /* Features */
 #features{
-    padding: 7% 15%;
+    position: relative;
+}
+
+.feature-title{
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
 .features-box{
-    text-align: center;
     padding: 5%;
 }
 
@@ -81,13 +97,12 @@ h3{
 
 /* Testimonials */
 #testimonials{
-    text-align: center;
     background-color: #ef8172;
-    color: #fff;
 }
 
-.carousel-item{
-    padding: 7% 15%;
+.testimonial-text{
+    font-size: 3rem;
+    line-height: 1.5;
 }
 
 .testimonials-image{
@@ -99,7 +114,6 @@ h3{
 /* Press */
 #press{
     background-color: #ef8172;
-    text-align: center;
     padding-bottom: 3%;
 }
 
@@ -112,9 +126,38 @@ h3{
 
 #pricing{
     padding: 100px;
-    text-align: center;
+}
+
+.card-title{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.price-text{
+    font-size: 3rem;
+    line-height: 1.5;
 }
 
 .pricing-column{
     padding: 3% 2%;
 }
+
+/* Call to Action */
+
+/* Footer */
+
+.footer-icon{
+    margin: 20px 10px;
+}
+
+@media (max-width: 992px){
+    .title-image{
+        position: static;
+        transform: rotate(0);
+    }
+
+    #title{
+        text-align: center;
+    }
+}
+
