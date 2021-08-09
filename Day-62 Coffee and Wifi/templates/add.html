@@ -1,0 +1,78 @@
+{% extends 'bootstrap/base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block title %}Add A New Cafe{% endblock %}
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='css/styles.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+
+      <h1>Add a new cafe into the database</h1>
+
+      <!-- This is where your WTForm will go -->
+        <form method="post" role="form" action="{{url_for('add_cafe')}}" >
+            <div class="form-row">
+<!--            {{form.csrf_token}}-->
+<!--            <p>-->
+<!--            {{form.cafe.label}} <br> {{form.cafe}}-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.cafe_location.label}} <br> {{form.cafe_location}}-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.open_time.label}} <br> {{form.open_time}}-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.close_time.label}} <br> {{form.close_time}}-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.coffee_rating.label}} <br>-->
+<!--            <select class="form-select">-->
+<!--              <option>☕</option>-->
+<!--              <option>☕☕</option>-->
+<!--              <option>☕☕☕</option>-->
+<!--              <option>☕☕☕☕</option>-->
+<!--              <option>☕☕☕☕☕</option>-->
+<!--            </select>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.wifi_rating.label}} <br>-->
+<!--            <select class="form-select">-->
+<!--              <option>💀</option>-->
+<!--              <option>💪</option>-->
+<!--              <option>💪💪</option>-->
+<!--              <option>💪💪💪</option>-->
+<!--              <option>💪💪💪💪</option>-->
+<!--              <option>💪💪💪💪💪</option>-->
+<!--            </select>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            {{form.power_availability.label}} <br>-->
+<!--            <select class="form-select">-->
+<!--              <option>💀</option>-->
+<!--              <option>🔌</option>-->
+<!--              <option>🔌🔌</option>-->
+<!--              <option>🔌🔌🔌</option>-->
+<!--              <option>🔌🔌🔌🔌</option>-->
+<!--              <option>🔌🔌🔌🔌🔌</option>-->
+<!--            </select>-->
+<!--            </p>-->
+<!--            <p>-->
+<!--            <span style="color: black" href="{{url_for('cafes')}}">{{form.submit}}</span>-->
+<!--            </p>-->
+            {{ wtf.quick_form(form, novalidate=True) }}
+            </div>
+        </form>
+
+	  <p class="space-above"><a href="{{url_for('cafes')}}">See all cafes</a></p>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
