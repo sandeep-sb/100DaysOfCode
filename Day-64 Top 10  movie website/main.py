@@ -8,11 +8,12 @@ from wtforms.validators import DataRequired
 import requests
 
 TMDB_api = "930bf3067f20d65c37483f809b2d5136"
-movie_list = []
+URL = "https://api.themoviedb.org/3/search/movie"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///top-10-movies.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 Bootstrap(app)
 db = SQLAlchemy(app)
 
@@ -22,70 +23,48 @@ class addMovieForm(FlaskForm):
     submit = SubmitField(label="Add Movie")
 
 
+class rateMovieForm(FlaskForm):
+    rating = StringField(label="Your Rating Out of 10 e.g. 7.5")
+    review = StringField(label="Your Review")
+    submit = SubmitField(label="Done")
+
+
 class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(80), nullable=False, unique=True)
     year = db.Column(db.Integer, nullable=False)
     description = db.Column(db.String(300), nullable=False)
-    rating = db.Column(db.Float, nullable=False)
-    ranking = db.Column(db.Integer, nullable=False)
-    review = db.Column(db.String(300), nullable=False)
+    rating = db.Column(db.Float, nullable=True)
+    ranking = db.Column(db.Integer, nullable=True)
+    review = db.Column(db.String(300), nullable=True)
     img_url = db.Column(db.String, nullable=False)
-
-    def __repr__(self):
-        return "<Movies %r>" % self.id
 
 
 db.create_all()
-# try:
-#     new_movie = Movie(title="Phone Booth",
-#                       year=2002,
-#                       description="Publicist Stuart Shepard finds himself trapped in a phone booth, pinned down by an "
-#                                   "extortionist's sniper rifle. Unable to leave or receive outside help, "
-#                                   "Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-#                       rating=7.3,
-#                       ranking=10,
-#                       review="My favourite character was the caller.",
-#                       img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg")
-#
-#     db.session.add(new_movie)
-#     db.session.commit()
-# except IntegrityError:
-#     pass
 
 
-@app.route("/", methods=["POST", "GET"])
+@app.route("/")
 def home():
-    if request.method == "POST":
-        movie_id = request.args.get('id')
-        for movie in movie_list:
-            if movie["id"] == movie_id:
-
-                new_movie = Movie(title=movie["original_title"],
-                                  year=movie["release_date"],
-                                  description=movie["overview"],
-                                  img_url=f"https://image.tmdb.org/t/p/w500{movie['poster_path']}")
-
-                db.session.add(new_movie)
-                db.session.commit()
-
-    movies = Movie.query.all()
+    movies = Movie.query.order_by(Movie.rating).all()
+    for i in range(len(movies)):
+        movies[i].ranking = len(movies) - i
+    db.session.commit()
     return render_template("index.html", movies=movies)
 
 
 @app.route("/edit", methods=["POST", "GET"])
 def edit():
-    if request.method == "POST":
-        movie_id = request.form['movie-id']
-        movie = Movie.query.get(movie_id)
-        movie.rating = request.form['new_rating']
-        movie.review = request.form['new_review']
+    rate_form = rateMovieForm()
+    movie_id = request.args.get('id')
+    movie = Movie.query.get(movie_id)
+
+    if rate_form.validate_on_submit():
+        movie.rating = float(rate_form.rating.data)
+        movie.review = rate_form.review.data
         db.session.commit()
         return redirect(url_for("home"))
 
-    movie_id = request.args.get('id')
-    movie = Movie.query.get(movie_id)
-    return render_template("edit.html", movie=movie)
+    return render_template("edit.html", movie=movie, form=rate_form)
 
 
 @app.route("/delete")
@@ -100,15 +79,35 @@ def delete():
 @app.route("/add", methods=['GET', 'POST'])
 def add():
     add_movie = addMovieForm()
-    if request.method == "POST":
+    if add_movie.validate_on_submit():
         parameter = {
             "api_key": TMDB_api,
             "query": add_movie.movie_title.data
         }
-        response = requests.get(url="https://api.themoviedb.org/3/search/movie", params=parameter)
+        response = requests.get(url=URL, params=parameter)
         movie_list = response.json()['results']
         return render_template("select.html", movies=movie_list)
     return render_template("add.html", add_movie_form=add_movie)
+
+
+@app.route("/find")
+def find_movie():
+    movie_id = request.args.get('id')
+    if movie_id:
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}"
+        parameters = {
+            "api_key": TMDB_api
+        }
+        response = requests.get(url=url, params=parameters)
+        data = response.json()
+        new_movie = Movie(title=data["original_title"],
+                          year=data["release_date"].split("-")[0],
+                          description=data["overview"],
+                          img_url=f"https://image.tmdb.org/t/p/w500{data['poster_path']}")
+        db.session.add(new_movie)
+        db.session.commit()
+
+        return redirect(url_for("edit", id=new_movie.id))
 
 
 if __name__ == '__main__':
